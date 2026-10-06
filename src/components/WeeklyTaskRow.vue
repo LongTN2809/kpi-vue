@@ -6,6 +6,17 @@ const weekData = defineProps({
     dateStart: String
 })
 
+// Data setup
+const groups = [
+    { id: 1, label: 'Carpenter' },
+    { id: 2, label: 'Event' },
+    { id: 3, label: 'Defect' },
+    { id: 4, label: 'Bảo trì' },
+    { id: 5, label: 'Vận hành' }
+]
+
+
+// 
 const weekDays = computed(() => {
     if (!weekData.dateStart) return []
 
@@ -43,22 +54,65 @@ function getDayFromDateString(startDateString) {
 
     return result;
 }
+
+console.log(weekDays.value);
 </script>
 
 <template>
-    <tr class="task_row">
-        <td class="task_col date">
+    <tr v-for="date in weekDays" :key="date.date" class="task_row">
+        <td class="task_col date">{{ date.dayOfWeek }}</td>
+        <td class="task_col shifts">
+            <select name="shift" class="select-shift">
+                <option selected disabled value="">Chọn ca</option>
+                <option value="a">Ca A</option>
+                <option value="b">Ca B</option>
+                <option value="c">Ca C</option>
+                <option value="n">Ca N</option>
+            </select>
+            <textarea rows="3" cols="3" name="shift_text" class="shift_text"></textarea>
         </td>
-        <td class="task_col shifts"></td>
-        <td class="task_col groups"></td>
-        <td class="task_col areas"></td>
-        <td class="task_col content"></td>
-        <td class="task_col evidents"></td>
-        <td class="task_col forms"></td>
+        <td class="task_col groups">
+
+            <select name="groups" class="select-groups">
+                <option value="" disabled selected>Chọn nhóm</option>
+                <option v-for="group in groups" :key="group.id" :value="group.label">{{ group.label }}</option>
+            </select>
+        </td>
+        <td class="task_col areas">
+            <textarea rows="4" cols="8" name="content_area" class="content_area"></textarea>
+        </td>
+        <td class="task_col content">
+            <textarea rows="4" cols="8" name="content_area" class="content_area"></textarea>
+        </td>
+        <td class="task_col evidents">
+            <input type="file" class="input_evident">
+        </td>
+        <td class="task_col forms">
+            <select name="systems" class="systems">
+                <option value="" disabled selected>Hệ thống</option>
+            </select>
+            <select name="forms" class="forms">
+                <option value="" disabled selected>Biểu mẫu</option>
+            </select>
+        </td>
         <td class="task_col staff_actions"></td>
-        <td class="task_col kpi-progress"></td>
-        <td class="task_col notes"></td>
-        <td class="task_col actions"></td>
+        <td class="task_col kpi-progress">
+            <select name="progress" class="select-progress">
+                <option selected disabled value="">Chọn tiến độ</option>
+                <option value="0">Làm lại</option>
+                <option value="1">Hoàn thành</option>
+                <option value="2">Bàn giao</option>
+                <option value="3">Đang thực hiện</option>
+            </select>
+        </td>
+        <td class="task_col notes">
+            <textarea rows="4" cols="8" name="content_area" class="content_area"></textarea>
+        </td>
+        <td class="task_col actions">
+            <i class="fa-solid fa-circle-plus"></i>
+            <i class="fa-solid fa-eye-slash"></i>
+            <i class="fa-solid fa-trash"></i>
+        </td>
     </tr>
 </template>
 

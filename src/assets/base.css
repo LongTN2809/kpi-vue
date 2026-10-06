@@ -436,3 +436,180 @@ label {
 .fade-leave-to {
     opacity: 0;
 }
+
+
+/* Weekly Plan */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+#weekly-plan {
+    width: 100%;
+    min-width: 1100px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    table-layout: fixed;
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    border-collapse: collapse;
+    text-align: center;
+}
+
+/* ---- Header ---- */
+.weekly-plan-wrapper table thead th:first-child {
+    border-top-left-radius: var(--radius-md);
+}
+
+.weekly-plan-wrapper table thead th:last-child {
+    border-top-right-radius: var(--radius-md);
+}
+
+#weekly-plan thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.9rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.weekly-plan-wrapper table thead th tr td,
+.weekly-plan-wrapper table tbody tr td {
+    border-right: 1px solid var(--color-border);
+}
+
+/* ---- Row ---- */
+.task_row {
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color var(--transition-fast);
+}
+
+.task_row:hover {
+    background-color: var(--color-bg-soft);
+}
+
+.task_col {
+    padding: 0.85rem 0.75rem;
+    vertical-align: top;
+}
+
+/* Khoảng cách giữa các field xếp chồng trong 1 ô (vd: select + textarea) */
+.task_col>*:not(:first-child) {
+    margin-top: 0.5rem;
+}
+
+/* ---- Cột Ngày ---- */
+.task_col.date {
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--color-primary-dark);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ---- Input chung: select, textarea ---- */
+.task_col select,
+.task_col textarea {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--color-text);
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.task_col select:focus,
+.task_col textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.task_col textarea {
+    resize: vertical;
+    min-height: 56px;
+}
+
+/* ---- Cột Minh chứng (file upload) ---- */
+.task_col.evidents input[type="file"] {
+    width: 100%;
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+}
+
+.task_col.evidents input[type="file"]::file-selector-button {
+    padding: 0.4rem 0.9rem;
+    margin-right: 0.6rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.task_col.evidents input[type="file"]::file-selector-button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* ---- Cột Người thực hiện (tạm bỏ qua, chừa khoảng trống hợp lý) ---- */
+.task_col.staff_actions {
+    min-width: 60px;
+}
+
+/* ---- Cột Thao tác ---- */
+.task_col.actions {
+    display: flex;
+    align-items: end;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.task_col.actions i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+}
+
+.task_col.actions i:hover {
+    opacity: 0.85;
+}
+
+.task_col.actions .fa-circle-plus {
+    background-color: var(--color-primary);
+}
+
+.task_col.actions .fa-eye-slash {
+    background-color: var(--color-warning);
+}
+
+.task_col.actions .fa-trash {
+    background-color: var(--color-danger);
+}

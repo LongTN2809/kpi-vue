@@ -1,6 +1,6 @@
 <script setup>
 import WeeklyTaskRow from '@/components/WeeklyTaskRow.vue';
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { weeklyPlanServices, } from '@/services/weeklyPlanServices.js'
 import {
     getCurrentWeekDetails,
@@ -79,6 +79,16 @@ const selectedWeekData = computed(() => {
     return allWeeks.value.find(week => week.week_num === selectedWeek.value)
 })
 
+watch(
+    [selectedWeek, allWeeks],
+    () => {
+        console.log('selectedWeek:', selectedWeek.value)
+        console.log('allWeeks:', allWeeks.value)
+        console.log('selectedWeekData:', selectedWeekData.value)
+    },
+    { deep: true }
+)
+
 
 // Khi component vừa mount
 onMounted(async () => {
@@ -96,7 +106,7 @@ onMounted(async () => {
                 <select v-model="selectedWeek" name="select_week" id="select_week">
                     <option v-if="allWeeks.length <= 0" value="">Chưa có tuần nào được tạo</option>
                     <option v-else v-for="week in allWeeks" :key="week.id" :value="week.week_num">Tuần {{ week.week_num
-                        }} (
+                    }} (
                         {{ week.date_start }} -
                         {{ week.date_end }} )</option>
                 </select>
@@ -119,27 +129,43 @@ onMounted(async () => {
     </article>
 
     <article class="weekly-plan-wrapper">
-        <table id="weekly-plan" style="position: relative;">
-            <thead>
-                <tr>
-                    <th>NGÀY</th>
-                    <th>CA LÀM</th>
-                    <th>NHÓM</th>
-                    <th>KHU VỰC</th>
-                    <th>NỘI DUNG</th>
-                    <th>MINH CHỨNG</th>
-                    <th>FORM BT</th>
-                    <th>NGƯỜI THỰC HIỆN</th>
-                    <th>TIẾN ĐỘ KPI</th>
-                    <th>GHI CHÚ</th>
-                    <th>THAO TÁC</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- <WeeklyTaskRow v-for="value in source" /> -->
-                <WeeklyTaskRow :date-start="selectedWeekData?.date_start" />
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table id="weekly-plan" style="position: relative;">
+                <colgroup>
+                    <col style="width: 90px"> <!-- Ngày -->
+                    <col style="width: 130px"> <!-- Ca làm -->
+                    <col style="width: 130px"> <!-- Nhóm -->
+                    <col style="width: 150px"> <!-- Khu vực -->
+                    <col style="width: 180px"> <!-- Nội dung -->
+                    <col style="width: 140px"> <!-- Minh chứng -->
+                    <col style="width: 140px"> <!-- Form BT -->
+                    <col style="width: 150px"> <!-- Người thực hiện -->
+                    <col style="width: 130px"> <!-- Tiến độ KPI -->
+                    <col style="width: 180px"> <!-- Ghi chú -->
+                    <col style="width: 110px"> <!-- Thao tác -->
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>NGÀY</th>
+                        <th>CA LÀM</th>
+                        <th>NHÓM</th>
+                        <th>KHU VỰC</th>
+                        <th>NỘI DUNG</th>
+                        <th>MINH CHỨNG</th>
+                        <th>FORM BT</th>
+                        <th>NGƯỜI THỰC HIỆN</th>
+                        <th>TIẾN ĐỘ KPI</th>
+                        <th>GHI CHÚ</th>
+                        <th>THAO TÁC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- <WeeklyTaskRow v-for="value in source" /> -->
+                    <WeeklyTaskRow :date-start="selectedWeekData?.date_start" />
+                </tbody>
+            </table>
+        </div>
+
 
         <table id="weekly-plan-hide" v-show="isTableVisible">
             <thead>
@@ -188,18 +214,9 @@ onMounted(async () => {
 
 .weekly-plan-wrapper table {
     width: 100%;
-    background-color: #ffffff;
-    border-radius: 10px;
-}
-
-.weekly-plan-wrapper table thead tr {
-    display: flex;
-    justify-content: space-between;
-    background-color: #DCE9FF;
-    padding: 20px;
-}
-
-.weekly-plan-wrapper table tbody {
-    padding: 20px;
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 </style>
