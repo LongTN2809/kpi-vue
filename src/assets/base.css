@@ -1,0 +1,438 @@
+:root {
+    /* ---- Màu chủ đạo ---- */
+    --color-primary: #0284c7;
+    --color-primary-dark: #075985;
+    --color-primary-light: #38bdf8;
+
+    --color-secondary: #38bdf8;
+    --color-secondary-dark: #0ea5e9;
+
+    --color-tertiary: #e0f2fe;
+
+    --color-neutral: #64748b;
+    --color-neutral-dark: #334155;
+    --color-neutral-light: #cbd5e1;
+
+    /* ---- Trạng thái ---- */
+    --color-success: #16a34a;
+    --color-danger: #dc2626;
+    --color-warning: #f59e0b;
+    --color-info: var(--color-secondary);
+
+    /* ---- Nền / chữ ---- */
+    --color-bg: #ffffff;
+    --color-bg-soft: #f8fafc;
+    --color-bg-mute: #eef2f6;
+
+    --color-text: #0f172a;
+    --color-text-light: var(--color-neutral);
+    --color-border: #e2e8f0;
+
+    /* ---- Font ---- */
+    --font-headline: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    --font-body: "Inter", "Segoe UI", sans-serif;
+
+    /* ---- Bo góc / bóng đổ / spacing ---- */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.1);
+
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+}
+
+/* 
+   Reset cơ bản
+    */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background-color: var(--color-bg-soft);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 
+   Typography
+    */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-headline);
+    color: var(--color-text);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.875rem;
+}
+
+h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+p,
+label,
+span,
+li {
+    font-family: var(--font-body);
+}
+
+p {
+    margin-bottom: 1rem;
+    color: var(--color-text-light);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+/* 
+   Layout helpers
+    */
+#app,
+.app-container {
+    margin: 50px auto;
+
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-sm {
+    gap: 0.5rem;
+}
+
+.gap-md {
+    gap: 1rem;
+}
+
+.gap-lg {
+    gap: 1.5rem;
+}
+
+/* 
+   Card
+    */
+.card {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* 
+   Buttons — Primary / Secondary / Inverted / Outlined
+    */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+/* Primary: nền xanh đậm, chữ trắng */
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* Secondary: nền nhạt, chữ tối */
+.btn-secondary {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-bg-mute);
+}
+
+.btn-action {
+    background: linear-gradient(180deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+    color: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-action:hover {
+    background: linear-gradient(180deg, var(--color-secondary-dark) 0%, var(--color-primary) 100%);
+}
+
+/* Inverted: nền navy đậm, chữ trắng (dùng cho trạng thái nhấn/active) */
+.btn-inverted {
+    background-color: var(--color-neutral-dark);
+    color: #ffffff;
+}
+
+.btn-inverted:hover {
+    background-color: #1e293b;
+}
+
+/* Outlined: viền xanh, chữ xanh, nền trong suốt */
+.btn-outlined {
+    background-color: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-outlined:hover {
+    background-color: var(--color-tertiary);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Ép màu chữ khi btn gắn trực tiếp lên <a> / <RouterLink> */
+a.btn-primary,
+a.btn-primary:hover,
+a.btn-inverted,
+a.btn-inverted:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+a.btn-outlined,
+a.btn-outlined:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+/* Icon button vuông (như icon home/search/user trong toolbar) */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.btn-icon-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.btn-icon-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.btn-icon-neutral {
+    background-color: var(--color-neutral);
+    color: #ffffff;
+}
+
+.btn-icon-neutral:hover {
+    opacity: 0.85;
+}
+
+.btn-icon-danger {
+    background-color: var(--color-danger);
+    color: #ffffff;
+}
+
+.btn-icon-danger:hover {
+    background-color: #b91c1c;
+}
+
+.btn-icon-tertiary {
+    background-color: var(--color-tertiary);
+    color: var(--color-primary);
+}
+
+.btn-icon-tertiary:hover {
+    background-color: #cfeafe;
+}
+
+/* 
+   Form elements
+    */
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* Search input có icon bên trái */
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 2.5rem;
+    background-color: var(--color-bg-mute);
+    border: none;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-neutral);
+}
+
+/* 
+   Badge / Tag
+    */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    background-color: var(--color-tertiary);
+    color: var(--color-primary-dark);
+}
+
+/* 
+   Progress bar (dùng cho KPI %)
+    */
+.progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background-color: var(--color-bg-mute);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--color-primary);
+    border-radius: 999px;
+    transition: width var(--transition-normal);
+}
+
+/* 
+   Scrollbar
+    */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-mute);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+}
+
+/* 
+   Vue transition helpers
+    */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity var(--transition-normal);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}

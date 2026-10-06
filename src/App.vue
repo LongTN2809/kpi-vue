@@ -1,11 +1,20 @@
-<script setup></script>
+<script setup>
+import { RouterView, RouterLink } from 'vue-router';
+import AppHeader from './components/AppHeader.vue';
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div id="app" class=".mode">
+
+    <AppHeader />
+
+
+    <!-- PAGE CONTENT -->
+    <main class="main-content">
+      <router-view />
+    </main>
+
+  </div>
 </template>
 
-<style scoped></style>
+<style></style>
