@@ -1,0 +1,65 @@
+
+
+
+# GHI CHÚ KIẾN THỨC VUE 3
+
+## 1. File `main.js` là gì và dùng để làm gì?
+
+* **Khái niệm:** Là **điểm bắt đầu (Entry Point)** của toàn bộ ứng dụng Vue.
+* **Nhiệm vụ:**
+1. Khởi tạo ứng dụng Vue (`createApp`).
+2. Nạp Component gốc (`App.vue`).
+3. Đăng ký các thư viện/plugin dùng chung (Vue Router, Pinia, UI Library, CSS toàn cục...).
+4. Gắn (mount) ứng dụng vào thẻ `<div id="app"></div>` trong file `index.html`.
+
+
+* **Quy tắc nhớ:** Cái gì muốn **cài 1 lần – dùng chung cho toàn bộ app** thì quăng vào `main.js`.
+
+---
+
+## 2. Chỉ thị `v-bind` (Cú pháp gốc & Rút gọn)
+
+* **Cú pháp gốc:** `v-bind:attribute="expression"`
+* **Cú pháp rút gọn:** `:attribute="expression"`
+* **Khi nào dùng?** Dùng khi muốn gắn một **biến / giá trị JavaScript** vào một **thuộc tính HTML** (như `:src`, `:href`, `:disabled`, `:class`, `:style`, `:key`).
+* **Ví dụ thực tế:**
+* **Nút bấm:** `<button :disabled="!isAgreed">` $\rightarrow$ Khóa nút nếu chưa đồng ý điều khoản.
+* **Ảnh đại diện:** `<img :src="user.avatarUrl" />` $\rightarrow$ Đổi ảnh theo dữ liệu người dùng.
+* **Active Menu:** `<button :class="{ active: currentTab === 'home' }">` $\rightarrow$ Thêm class `active` khi đang ở tab Trang chủ.
+* **Vòng lặp:** `<li v-for="item in list" :key="item.id">` $\rightarrow$ Định danh từng phần tử.
+
+
+
+---
+
+## 3. Khi nào nên khai báo biến dạng `ref()`?
+
+* **Mục đích:** Giúp dữ liệu có tính **Phản ứng (Reactivity)**. Khi giá trị biến thay đổi $\rightarrow$ Giao diện (HTML) tự động cập nhật theo.
+* **Trường hợp sử dụng:**
+* Lưu dữ liệu Form (input, select, checkbox).
+* Trạng thái giao diện: Bật/tắt Modal, Loading (`true`/`false`), Tab đang chọn.
+* Dữ liệu nhận từ API (mảng danh sách, object thông tin).
+* Bắt trực tiếp thẻ HTML trong DOM (Template Ref).
+
+
+* **Lời khuyên thực tế:** Đừng sợ dùng `ref` "thừa"! Việc khai báo `ref` không làm chậm app. Nếu phân vân không biết biến đó sau này có cần hiển thị ra UI hay không, **cứ mạnh dạn dùng `ref()**`.
+
+---
+
+## 4. Khái niệm State & Instance
+
+### A. State (Trạng thái)
+
+* **Là gì?** Là **dữ liệu thực tế tại một thời điểm** của ứng dụng mà khi nó thay đổi, giao diện sẽ thay đổi theo.
+* **Phân biệt ngắn gọn:** Ví dụ bạn khai báo `const count = ref(2)`.
+* **Biến `count`:** Là cái hộp / bộ báo hiệu chứa dữ liệu.
+* **Số `2`:** Chính là **State** tại thời điểm hiện tại.
+* Khi bạn đổi `count.value = 3` $\rightarrow$ Bạn vừa **thay đổi State**, Vue thấy vậy sẽ lập tức vẽ lại con số `3` lên màn hình.
+
+
+
+### B. Instance (Thực thể)
+
+* **Component (File `.vue`):** Là **bản vẽ thiết kế / khuôn mẫu**.
+* **Component Instance:** Là **sản phẩm thực tế** được tạo ra từ bản vẽ đó trên bộ nhớ RAM khi web chạy.
+* **Mối liên hệ:** Nếu bạn viết 1 file `ProductCard.vue` (Component) và gọi thẻ `<ProductCard/>` **3 lần** trên trang web $\rightarrow$ Vue sẽ sinh ra **3 Component Instance riêng biệt**. Mỗi Instance tự quản lý bộ State và giao diện hoàn toàn độc lập với nhau.

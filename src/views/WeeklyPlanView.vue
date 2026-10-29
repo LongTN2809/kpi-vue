@@ -1,77 +1,137 @@
 <script setup>
+// Import component and services
 import WeeklyTaskRow from '@/components/WeeklyTaskRow.vue';
 import { onMounted, ref, computed, watch } from 'vue'
+import { userServices } from '@/services/userServices';
+import { taskServices } from '@/services/taskServices';
+import { maintenanceServices } from '@/services/maintenanceServices.js';
 import { weeklyPlanServices, } from '@/services/weeklyPlanServices.js'
 import {
     getCurrentWeekDetails,
     formatDateForDB,
-    getNextWeekDetailsFromDate
+    getNextWeekDetailsFromDate,
+    getDayInfoFromDate
 } from '@/helpers/weeklyPlan/calWeeks.js'
 import { isTableVisible, toggleTable } from '@/helpers/weeklyPlan/visibleComponents.js'
+import { exportTasksToExcel } from '@/helpers/weeklyPlan/exportTasksToExcel';
+import { useResizableColumns } from '@/helpers/weeklyPlan/useResizableColumns'
 
+// Setup data
 const selectedWeek = ref(null);
 const allWeeks = ref([]);
+const allStaffs = ref([]);
+const allFolders = ref([]);
+const allForms = ref([]);
+const allTasks = ref([]);
+
+const headers = [
+    'NGÀY', 'CA LÀM', 'NHÓM', 'KHU VỰC', 'NỘI DUNG', 'MINH CHỨNG',
+    'FORM BT', 'NGƯỜI THỰC HIỆN', 'TIẾN ĐỘ KPI', 'GHI CHÚ', 'THAO TÁC'
+]
+
+// Độ rộng ban đầu lấy đúng từ colgroup hiện tại của bạn
+const { widths, totalWidth, startResize } = useResizableColumns(
+    [120, 160, 160, 150, 180, 140, 140, 150, 160, 180, 130]
+)
+
+
 // Lấy tuần mới nhất
 const loadLatestWeek = async () => {
-    const latestWeek = await weeklyPlanServices.getLatestWeek()
+    const latestWeek = await weeklyPlanServices.getLatestWeek();
 
     if (latestWeek) {
         selectedWeek.value = latestWeek.week_num;
-        return
+        return;
     }
 
-    // Nếu database chưa có tuần nào → tạo tuần hiện tại
-    const currentWeek = getCurrentWeekDetails()
+    // Database chưa có tuần nào → tạo tuần hiện tại
+    const currentWeek = getCurrentWeekDetails();
 
     const newWeek = await weeklyPlanServices.createNewWeek({
         week_num: currentWeek.weekNumber,
         date_start: formatDateForDB(currentWeek.date_start),
         date_end: formatDateForDB(currentWeek.date_end)
-    })
+    });
 
-    selectedWeek.value = newWeek[0].week_num;
-    console.log("Load tuần moi nhat khi vao trang:", selectedWeek.value);
-}
+    const createdWeek = newWeek[0];
+
+    // Tạo danh sách 7 ngày
+    const dates = getWeekDaysFromDate(
+        createdWeek.date_start
+    );
+
+    // Tạo 7 dòng công việc
+    await taskServices.createEmptyTasksForWeek(
+        createdWeek.id,
+        dates
+    );
+
+    // Chọn tuần vừa tạo
+    selectedWeek.value = newWeek.week_num;
+
+    console.log("Đã tạo tuần hiện tại:", selectedWeek.value);
+    console.log("Đã tạo 7 dòng công việc cho tuần mới.");
+    await loadAllWeeks();
+};
 
 const loadAllWeeks = async () => {
     allWeeks.value = await weeklyPlanServices.getAllWeeks();
 }
 
 
+
 // Xử lý tạo tuần mới
 const handleCreateNewWeek = async () => {
-    const latestWeek = await weeklyPlanServices.getLatestWeek()
+    try {
+        const latestWeek = await weeklyPlanServices.getLatestWeek();
 
-    if (!latestWeek) {
-        console.log('Chưa có tuần nào trong database')
-        return
+        if (!latestWeek) {
+            console.log('Chưa có tuần nào trong database');
+            return;
+        }
+
+        const nextWeek = getNextWeekDetailsFromDate(
+            latestWeek.date_end,
+            latestWeek.week_num
+        );
+
+        const newWeek = await weeklyPlanServices.createNewWeek({
+            week_num: nextWeek.weekNumber,
+            date_start: formatDateForDB(nextWeek.date_start),
+            date_end: formatDateForDB(nextWeek.date_end)
+        });
+
+        const createdWeek = newWeek[0];
+
+        // Tạo danh sách 7 ngày
+        const dates = getWeekDaysFromDate(
+            createdWeek.date_start
+        );
+
+        // Tạo 7 dòng công việc
+        await taskServices.createEmptyTasksForWeek(
+            createdWeek.id,
+            dates
+        );
+
+        // Chọn tuần vừa tạo
+        selectedWeek.value = createdWeek.week_num;
+
+        // Tải lại danh sách tuần
+        await loadAllWeeks();
+
+    } catch (error) {
+        console.error('Lỗi khi tạo tuần mới:', error);
     }
-
-    const nextWeek = getNextWeekDetailsFromDate(
-        latestWeek.date_end,
-        latestWeek.week_num
-    )
-
-    const newWeek = await weeklyPlanServices.createNewWeek({
-        week_num: nextWeek.weekNumber,
-        date_start: formatDateForDB(nextWeek.date_start),
-        date_end: formatDateForDB(nextWeek.date_end)
-    })
-
-    selectedWeek.value = newWeek[0].week_num;
-
-    await loadAllWeeks();
-
-}
+};
 
 const handleDeleteWeek = async () => {
-    console.log(selectedWeek.value)
     if (!selectedWeek.value) return;
-
     await weeklyPlanServices.deleteWeek(selectedWeek.value);
     await loadAllWeeks();
     await loadLatestWeek();
 }
+
 
 
 // Hàm truyền date_start xuống component con
@@ -79,21 +139,196 @@ const selectedWeekData = computed(() => {
     return allWeeks.value.find(week => week.week_num === selectedWeek.value)
 })
 
-watch(
-    [selectedWeek, allWeeks],
-    () => {
-        console.log('selectedWeek:', selectedWeek.value)
-        console.log('allWeeks:', allWeeks.value)
-        console.log('selectedWeekData:', selectedWeekData.value)
-    },
-    { deep: true }
-)
 
+const weekDays = computed(() => {
+    if (!selectedWeekData.value?.date_start) {
+        return []
+    }
+
+    return {
+        id: selectedWeekData.value.id,
+        dateStart: getWeekDaysFromDate(
+            selectedWeekData.value.date_start
+        )
+    }
+})
+
+// hàm tính thứ trong tuần
+function getWeekDaysFromDate(startDateString) {
+    if (!startDateString) return []
+
+    const startDate = new Date(startDateString + 'T00:00:00')
+
+    if (isNaN(startDate.getTime())) {
+        console.error('Chuỗi ngày không hợp lệ')
+        return []
+    }
+
+    const result = []
+
+    const dayOfWeekNames = [
+        'Chủ nhật',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 4',
+        'Thứ 5',
+        'Thứ 6',
+        'Thứ 7'
+    ]
+
+    for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(startDate)
+
+        currentDate.setDate(startDate.getDate() + i)
+
+        result.push({
+            dayOfWeek: dayOfWeekNames[currentDate.getDay()],
+            date: formatDateForDB(currentDate),
+            day: currentDate.getDate()
+        })
+    }
+
+    return result
+}
+
+// Thêm 1 dòng công việc mới trong cùng ngày
+const addTask = async (taskDate) => {
+    try {
+        // Tạo task mới trong database
+        const savedTask = await taskServices.createTask({
+            week_id: weekDays.value.id,
+            task_date: taskDate.date,
+            shift: '',
+            shift_text: '',
+            area: '',
+            content: '',
+            progress: '-1',
+            task_note: '',
+            is_visible: true
+        });
+
+        // Lưu task vừa tạo vào danh sách task đang hiển thị
+        allTasks.value.push(savedTask);
+
+        console.log('Task vừa tạo:', savedTask);
+
+    } catch (error) {
+        console.error('Lỗi tạo task:', error);
+    }
+};
+
+
+// Lấy id và tên nhân viên
+const loadAllStaffs = async () => {
+    allStaffs.value = await userServices.getUserInfor();
+}
+
+const loadAllFolders = async () => {
+    allFolders.value = await maintenanceServices.getAllFolders();
+}
+
+const loadAllForms = async () => {
+    allForms.value = await maintenanceServices.getAllForms();
+}
+
+const loadTasksByWeek = async () => {
+    if (!weekDays.value?.id) {
+        allTasks.value = [];
+        return;
+    }
+
+    allTasks.value = await taskServices.getTasksByWeekId(
+        weekDays.value.id
+    );
+};
+
+const getTasksByDate = (date) => {
+    const tasks = allTasks.value.filter((task) => {
+        return task.task_date === date && task.is_visible === true;
+    });
+
+
+    return tasks;
+};
+
+const getNoVisibleTasks = () => {
+    return allTasks.value.filter((task) => {
+        return task.is_visible === false;
+    })
+}
+
+// Load task theo tuần
+watch(
+    () => weekDays.value?.id, // Theo doi id cua weekDays
+    async (weekId) => { // Ham xu ly khi id thay doi
+        if (!weekId) {
+            allTasks.value = [];
+            return;
+        }
+
+        await loadTasksByWeek();
+    },
+    { immediate: true }
+);
+
+
+const handleToggleVisibility = async ({ taskId, isVisible }) => {
+    console.log(taskId, " : ", isVisible);
+    try {
+
+        await taskServices.updateVisible(taskId, isVisible);
+
+        const task = allTasks.value.find(
+            (item) => item.id === taskId
+        );
+
+        if (task) {
+            task.is_visible = isVisible;
+        }
+    } catch (error) {
+        console.log("Loi khi an cong viec", error);
+    }
+}
+
+
+const handleDeleteTask = async (taskId) => {
+    try {
+        await taskServices.deleteTaskOfDay(taskId);
+        await loadTasksByWeek();
+
+    } catch (error) {
+        console.log('Loi khi xoa dong cong viec:', error);
+    }
+}
+
+const handleExportExcel = async () => {
+    try {
+        const selectedWeekData = allWeeks.value.find(
+            week => week.week_num === selectedWeek.value
+        );
+
+        if (!selectedWeekData) {
+            console.error('Không tìm thấy tuần được chọn');
+            return;
+        }
+
+        const tasks = await taskServices.getTasksByWeekId(
+            selectedWeekData.id
+        );
+
+        exportTasksToExcel(tasks, selectedWeek.value);
+    } catch (error) {
+        console.error('Lỗi xuất Excel:', error);
+    }
+};
 
 // Khi component vừa mount
 onMounted(async () => {
     await loadAllWeeks();
     await loadLatestWeek();
+    await loadAllStaffs();
+    await loadAllFolders();
+    await loadAllForms();
 })
 
 </script>
@@ -106,7 +341,7 @@ onMounted(async () => {
                 <select v-model="selectedWeek" name="select_week" id="select_week">
                     <option v-if="allWeeks.length <= 0" value="">Chưa có tuần nào được tạo</option>
                     <option v-else v-for="week in allWeeks" :key="week.id" :value="week.week_num">Tuần {{ week.week_num
-                    }} (
+                        }} (
                         {{ week.date_start }} -
                         {{ week.date_end }} )</option>
                 </select>
@@ -120,7 +355,8 @@ onMounted(async () => {
                     tại</button>
                 <button class="create_new_day btn btn-action"><i class="fa-solid fa-circle-plus"></i> Tạo ngày trực
                     mới</button>
-                <button class="download_week_excel btn btn-action"><i class="fa-solid fa-file-arrow-down"></i> Tải excel
+                <button @click="handleExportExcel" class="download_week_excel btn btn-action"><i
+                        class="fa-solid fa-file-arrow-down"></i> Tải excel
                     tuần</button>
                 <button @click="toggleTable" class="show_task btn btn-action"><i class="fa-solid fa-eye-slash"></i> Công
                     việc bị ẩn</button>
@@ -129,61 +365,53 @@ onMounted(async () => {
     </article>
 
     <article class="weekly-plan-wrapper">
-        <div class="table-wrapper">
-            <table id="weekly-plan" style="position: relative;">
+        <div class="table-wrapper" style="max-height:700px; overflow-y: auto;">
+            <table id="weekly-plan" :style="{ width: totalWidth + 'px' }">
                 <colgroup>
-                    <col style="width: 90px"> <!-- Ngày -->
-                    <col style="width: 130px"> <!-- Ca làm -->
-                    <col style="width: 130px"> <!-- Nhóm -->
-                    <col style="width: 150px"> <!-- Khu vực -->
-                    <col style="width: 180px"> <!-- Nội dung -->
-                    <col style="width: 140px"> <!-- Minh chứng -->
-                    <col style="width: 140px"> <!-- Form BT -->
-                    <col style="width: 150px"> <!-- Người thực hiện -->
-                    <col style="width: 130px"> <!-- Tiến độ KPI -->
-                    <col style="width: 180px"> <!-- Ghi chú -->
-                    <col style="width: 110px"> <!-- Thao tác -->
+                    <col v-for="(w, i) in widths" :key="i" :style="{ width: w + 'px' }" />
                 </colgroup>
                 <thead>
                     <tr>
-                        <th>NGÀY</th>
-                        <th>CA LÀM</th>
-                        <th>NHÓM</th>
-                        <th>KHU VỰC</th>
-                        <th>NỘI DUNG</th>
-                        <th>MINH CHỨNG</th>
-                        <th>FORM BT</th>
-                        <th>NGƯỜI THỰC HIỆN</th>
-                        <th>TIẾN ĐỘ KPI</th>
-                        <th>GHI CHÚ</th>
-                        <th>THAO TÁC</th>
+                        <th v-for="(h, i) in headers" :key="h">
+                            {{ h }}
+                            <span class="col-resizer" @pointerdown.prevent="startResize($event, i)"></span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- <WeeklyTaskRow v-for="value in source" /> -->
-                    <WeeklyTaskRow :date-start="selectedWeekData?.date_start" />
+                    <template v-for="taskDate in weekDays.dateStart" :key="taskDate.date">
+                        <!-- Những task đã lưu -->
+                        <WeeklyTaskRow v-for="task in getTasksByDate(taskDate.date)" :key="task.id"
+                            :task-date="taskDate" :task="task" :staffs="allStaffs" :week-id="weekDays.id"
+                            :folders="allFolders" :forms="allForms" :add-task="addTask"
+                            @toggle-visibility="handleToggleVisibility" @delete-task="handleDeleteTask" />
+
+                    </template>
                 </tbody>
             </table>
         </div>
 
-
-        <table id="weekly-plan-hide" v-show="isTableVisible">
-            <thead>
-                <tr>
-                    <th>NGÀY</th>
-                    <th>CA LÀM</th>
-                    <th>NHÓM</th>
-                    <th>NỘI DUNG</th>
-                    <th>THAO TÁC</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr>
-                    <td>Danh sách công việc bị ẩn</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-wrapper hide" style="max-height:700px; overflow-y: auto;">
+            <table id="weekly-plan-hide" v-show="isTableVisible" :style="{ width: totalWidth + 'px' }">
+                <colgroup>
+                    <col v-for="(w, i) in widths" :key="i" :style="{ width: w + 'px' }" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th v-for="(h, i) in headers" :key="h">
+                            {{ h }}
+                            <span class="col-resizer" @pointerdown.prevent="startResize($event, i)"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <WeeklyTaskRow v-for="task in getNoVisibleTasks()" :key="task.id"
+                        :task-date="getDayInfoFromDate(task.task_date)" :task="task" :staffs="allStaffs"
+                        :week-id="task.week_id" :folders="allFolders" :forms="allForms" :add-task="addTask"
+                        @toggle-visibility="handleToggleVisibility" @delete-task="handleDeleteTask" />
+                </tbody>
+            </table>
+        </div>
     </article>
 </template>
 
@@ -210,13 +438,5 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     gap: 20px;
-}
-
-.weekly-plan-wrapper table {
-    width: 100%;
-    background-color: var(--color-bg);
-    border-radius: var(--radius-md);
-    border-collapse: collapse;
-    table-layout: fixed;
 }
 </style>

@@ -1,12 +1,13 @@
 <script setup>
-import { RouterView, RouterLink } from 'vue-router';
+import { RouterView, RouterLink , useRoute} from 'vue-router';
 import AppHeader from './components/AppHeader.vue';
+const route = useRoute();
 </script>
 
 <template>
   <div id="app" class=".mode">
 
-    <AppHeader />
+    <AppHeader v-if="route.path !== '/login'"/>
 
 
     <!-- PAGE CONTENT -->

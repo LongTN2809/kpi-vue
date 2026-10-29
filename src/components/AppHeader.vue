@@ -1,6 +1,6 @@
 <script setup>
-import { RouterLink } from 'vue-router';
-
+import { RouterLink , useRouter } from 'vue-router';
+import { supabase } from '@/lib/supabase';
 import { onMounted } from 'vue'
 
 function applyTheme(theme) {
@@ -12,6 +12,19 @@ function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme')
     applyTheme(current === 'dark' ? 'light' : 'dark')
 }
+
+const router = useRouter();
+
+const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+        console.error('Lỗi đăng xuất:', error.message);
+        return;
+    }
+
+    router.replace('/login');
+};
 
 onMounted(() => {
     // Ưu tiên: theme đã lưu trước đó > theme hệ thống > mặc định light
@@ -68,9 +81,13 @@ onMounted(() => {
             <router-link to="/account" class="icon-btn">
                 <i class="fa-solid fa-circle-user"></i>
             </router-link>
-            <router-link to="/login" class="icon-btn icon-btn-danger">
-                <i class="fa-solid fa-power-off"></i>
-            </router-link>
+            <button
+    type="button"
+    class="icon-btn icon-btn-danger"
+    @click="handleLogout"
+>
+    <i class="fa-solid fa-power-off"></i>
+</button>
         </div>
 
     </header>

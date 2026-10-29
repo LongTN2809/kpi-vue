@@ -439,7 +439,8 @@ label {
 
 
 /* Weekly Plan */
-.table-wrapper {
+.table-wrapper,
+.table-wrapper.hide {
     width: 100%;
     overflow-x: auto;
     background-color: var(--color-bg);
@@ -447,30 +448,41 @@ label {
     border-radius: var(--radius-md);
 }
 
-#weekly-plan {
-    width: 100%;
-    min-width: 1100px;
-    border-collapse: separate;
-    border-spacing: 0;
+.table-wrapper.hide {
+    margin-top: 50px;
+}
+
+#weekly-plan,
+#weekly-plan-hide {
+    min-width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
     font-family: var(--font-body);
     font-size: 0.85rem;
-    table-layout: fixed;
-    background-color: var(--color-bg);
-    border-radius: var(--radius-md);
-    border-collapse: collapse;
     text-align: center;
+    background-color: var(--color-bg);
 }
 
 /* ---- Header ---- */
-.weekly-plan-wrapper table thead th:first-child {
-    border-top-left-radius: var(--radius-md);
+#weekly-plan thead th,
+#weekly-plan-hide thead th {
+    position: sticky;
+    /* dính khi cuộn dọc, đồng thời là điểm neo của .col-resizer */
+    top: 0;
+    z-index: 2;
+    padding: 0.9rem 12px 0.9rem 0.75rem;
+    background-color: var(--color-bg);
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.weekly-plan-wrapper table thead th:last-child {
-    border-top-right-radius: var(--radius-md);
-}
-
-#weekly-plan thead th {
+#weekly-plan thead th,
+#weekly-plan-hide thead th {
     position: sticky;
     top: 0;
     z-index: 2;
@@ -488,7 +500,9 @@ label {
 }
 
 .weekly-plan-wrapper table thead th tr td,
-.weekly-plan-wrapper table tbody tr td {
+.weekly-plan-wrapper table tbody tr td,
+.weekly-plan-wrapper.hide table thead th tr td,
+.weekly-plan-wrapper.hide table tbody tr td {
     border-right: 1px solid var(--color-border);
 }
 
@@ -544,8 +558,10 @@ label {
 }
 
 .task_col textarea {
+    overflow: hidden;
     resize: vertical;
     min-height: 56px;
+    max-height: 500px;
 }
 
 /* ---- Cột Minh chứng (file upload) ---- */
@@ -612,4 +628,39 @@ label {
 
 .task_col.actions .fa-trash {
     background-color: var(--color-danger);
+}
+
+
+
+.col-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    touch-action: none;
+    user-select: none;
+}
+
+.col-resizer::after {
+    content: "";
+    position: absolute;
+    top: 20%;
+    bottom: 20%;
+    right: 2px;
+    width: 2px;
+    border-radius: 2px;
+    background-color: transparent;
+    transition: background-color var(--transition-fast);
+}
+
+.col-resizer:hover::after,
+.is-resizing .col-resizer::after {
+    background-color: var(--color-primary);
+}
+
+body.is-resizing {
+    cursor: col-resize;
+    user-select: none;
 }

@@ -60,3 +60,32 @@ export function getNextWeekDetailsFromDate(lastEndDateStr, lastWeekNum) {
     };
 }
 
+// HÀM LẤY THÔNG TIN 1 NGÀY BẤT KÌ
+export function getDayInfoFromDate(dateString) {
+    if (!dateString) return null;
+
+    const date = new Date(dateString + 'T00:00:00');
+
+    if (isNaN(date.getTime())) {
+        console.error('Chuỗi ngày không hợp lệ');
+        return null;
+    }
+
+    const dayOfWeekNames = [
+        'Chủ nhật',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 4',
+        'Thứ 5',
+        'Thứ 6',
+        'Thứ 7'
+    ];
+
+    return {
+        dayOfWeek: dayOfWeekNames[date.getDay()],
+        date: formatDateForDB(date),
+        day: date.getDate()
+    };
+}
+
+
