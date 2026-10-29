@@ -254,6 +254,23 @@ const getNoVisibleTasks = () => {
     })
 }
 
+const getNoVisibleTasksByDate = () => {
+    const tasksByDate = new Map();
+
+    for (const task of getNoVisibleTasks()) {
+        if (!tasksByDate.has(task.task_date)) {
+            tasksByDate.set(task.task_date, {
+                taskDate: getDayInfoFromDate(task.task_date),
+                tasks: []
+            });
+        }
+
+        tasksByDate.get(task.task_date).tasks.push(task);
+    }
+
+    return Array.from(tasksByDate.values());
+}
+
 // Load task theo tuần
 watch(
     () => weekDays.value?.id, // Theo doi id cua weekDays
@@ -415,9 +432,10 @@ onMounted(async () => {
                 <tbody>
                     <template v-for="taskDate in weekDays.dateStart" :key="taskDate.date">
                         <!-- Những task đã lưu -->
-                        <WeeklyTaskRow v-for="task in getTasksByDate(taskDate.date)" :key="task.id"
+                        <WeeklyTaskRow v-for="(task, taskIndex) in getTasksByDate(taskDate.date)" :key="task.id"
                             :task-date="taskDate" :task="task" :staffs="allStaffs" :week-id="weekDays.id"
                             :folders="allFolders" :forms="allForms" :add-task="addTask"
+                            :show-date="taskIndex === 0" :rowspan="getTasksByDate(taskDate.date).length"
                             @toggle-visibility="handleToggleVisibility" @delete-task="handleDeleteTask" />
 
                     </template>
@@ -439,10 +457,13 @@ onMounted(async () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <WeeklyTaskRow v-for="task in getNoVisibleTasks()" :key="task.id"
-                        :task-date="getDayInfoFromDate(task.task_date)" :task="task" :staffs="allStaffs"
-                        :week-id="task.week_id" :folders="allFolders" :forms="allForms" :add-task="addTask"
-                        @toggle-visibility="handleToggleVisibility" @delete-task="handleDeleteTask" />
+                    <template v-for="dateGroup in getNoVisibleTasksByDate()" :key="dateGroup.taskDate.date">
+                        <WeeklyTaskRow v-for="(task, taskIndex) in dateGroup.tasks" :key="task.id"
+                            :task-date="dateGroup.taskDate" :task="task" :staffs="allStaffs"
+                            :week-id="task.week_id" :folders="allFolders" :forms="allForms" :add-task="addTask"
+                            :show-date="taskIndex === 0" :rowspan="dateGroup.tasks.length"
+                            @toggle-visibility="handleToggleVisibility" @delete-task="handleDeleteTask" />
+                    </template>
                 </tbody>
             </table>
         </div>

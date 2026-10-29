@@ -51,7 +51,15 @@ const props = defineProps({
     folders: Array,
     forms: Array,
     weekId: Number,
-    addTask: Function
+    addTask: Function,
+    showDate: {
+        type: Boolean,
+        default: true
+    },
+    rowspan: {
+        type: Number,
+        default: 1
+    }
 });
 
 // Đường dẫn tạm để hiển thị ảnh xem trước
@@ -402,7 +410,9 @@ const handleDeleteEvidence = async (image) => {
 <template>
 
     <tr class="task_row">
-        <td class="task_col date"> {{ taskDate.dayOfWeek }} <br> {{ taskDate.date }} </td>
+        <td v-if="showDate" class="task_col date" :rowspan="rowspan">
+            {{ taskDate.dayOfWeek }} <br> {{ taskDate.date }}
+        </td>
         <td class="task_col shifts">
             <select v-model="dataRow.shift" name="shift" class="select-shift">
                 <option selected disabled value="">Chọn ca</option>
