@@ -11,6 +11,18 @@ export const taskServices = {
         if (error) throw error;
         return data;
     },
+    async getLatestTaskOfWeek(weekId){
+        const {data , error} = await supabase
+        .from("tasks")
+        .select("task_date")
+        .eq('week_id' , weekId)
+        .order('task_date', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+        if(error) throw error;
+        return data;
+    },
 
     async createTask(taskData) {
         const { data, error } = await supabase

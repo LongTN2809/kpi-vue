@@ -68,9 +68,6 @@ const loadLatestWeek = async () => {
 
     // Chọn tuần vừa tạo
     selectedWeek.value = newWeek.week_num;
-
-    console.log("Đã tạo tuần hiện tại:", selectedWeek.value);
-    console.log("Đã tạo 7 dòng công việc cho tuần mới.");
     await loadAllWeeks();
 };
 
@@ -303,17 +300,8 @@ const handleDeleteTask = async (taskId) => {
 
 const handleExportExcel = async () => {
     try {
-        const selectedWeekData = allWeeks.value.find(
-            week => week.week_num === selectedWeek.value
-        );
-
-        if (!selectedWeekData) {
-            console.error('Không tìm thấy tuần được chọn');
-            return;
-        }
-
         const tasks = await taskServices.getTasksByWeekId(
-            selectedWeekData.id
+            weekDays.value.id
         );
 
         exportTasksToExcel(tasks, selectedWeek.value);
@@ -321,6 +309,52 @@ const handleExportExcel = async () => {
         console.error('Lỗi xuất Excel:', error);
     }
 };
+
+const handleCreateNewDate = async () => {
+try {
+      const hadTasks = await taskServices.getTasksByWeekId(weekDays.value.id);
+    let initDate = '';
+    if(hadTasks.length === 0){
+       initDate = weekDays.value.dateStart[0].date;
+    } else {
+    const latestTask = await taskServices.getLatestTaskOfWeek(
+        weekDays.value.id
+    );
+
+    // cộng ngày lên để tạo ngày tiếp theo nếu đã có ngày trước đó
+    if (latestTask) {
+        const nextDate = new Date(latestTask.task_date);
+
+        nextDate.setDate(nextDate.getDate() + 1);
+
+        initDate = nextDate.toISOString().split('T')[0];
+    } else {
+        initDate = weekDays.value.dateStart[0].date;
+    }
+
+}
+        // Tạo task mới trong database
+        const savedTask = await taskServices.createTask({
+            week_id: weekDays.value.id,
+            task_date:initDate ,
+            shift: '',
+            shift_text: '',
+            area: '',
+            content: '',
+            progress: '-1',
+            task_note: '',
+            is_visible: true
+        });
+
+        // Lưu task vừa tạo vào danh sách task đang hiển thị
+        allTasks.value.push(savedTask);
+
+        console.log('Task vừa tạo:', savedTask);
+
+    } catch (error) {
+        console.error('Lỗi tạo task:', error);
+    }
+}
 
 // Khi component vừa mount
 onMounted(async () => {
@@ -353,7 +387,7 @@ onMounted(async () => {
                 <button @click="handleDeleteWeek" class="delete_week btn btn-action"><i
                         class="fa-regular fa-trash-can"></i> Xoá tuần hiện
                     tại</button>
-                <button class="create_new_day btn btn-action"><i class="fa-solid fa-circle-plus"></i> Tạo ngày trực
+                <button @click="handleCreateNewDate" class="create_new_day btn btn-action"><i class="fa-solid fa-circle-plus"></i> Tạo ngày trực
                     mới</button>
                 <button @click="handleExportExcel" class="download_week_excel btn btn-action"><i
                         class="fa-solid fa-file-arrow-down"></i> Tải excel
